@@ -3,7 +3,7 @@
 namespace MKniazuk\SortedLinkedList;
 
 /**
- * @template T of Item
+ * @template T of mixed
  *
  * @implements SortedList<T>
  *
@@ -15,10 +15,12 @@ class LinkedSortedList implements SortedList
     private ?Node $head = null;
 
     /**
-     * @param iterable<T> $values
+     * @param iterable<T>       $values
+     * @param \Closure(T,T):int $comparator
      */
     public function __construct(
-        iterable $values = [],
+        iterable $values,
+        private readonly \Closure $comparator
     ) {
         foreach ($values as $value) {
             $this->add($value);
@@ -78,7 +80,7 @@ class LinkedSortedList implements SortedList
      *
      * @throws NoSuchElementException
      */
-    public function head(): Item
+    public function head(): mixed
     {
         return $this->head->item ?? throw new NoSuchElementException();
     }
@@ -88,7 +90,7 @@ class LinkedSortedList implements SortedList
      *
      * @throws NoSuchElementException
      */
-    public function tail(): Item
+    public function tail(): mixed
     {
         $lastNode = null;
         foreach ($this->iterateNodes() as $node) {
@@ -98,10 +100,10 @@ class LinkedSortedList implements SortedList
         return $lastNode->item ?? throw new NoSuchElementException();
     }
 
-    public function contains(Item $item): bool
+    public function contains(mixed $item): bool
     {
         foreach ($this->iterateNodes() as $node) {
-            if (0 === $node->item->compare($item)) {
+            if (0 === ($this->comparator)($node->item, $item)) {
                 return true;
             }
         }
@@ -123,11 +125,11 @@ class LinkedSortedList implements SortedList
         return false;
     }
 
-    public function indexOf(Item $item): ?int
+    public function indexOf(mixed $item): ?int
     {
         $index = 0;
         foreach ($this->iterateNodes() as $node) {
-            if (0 === $node->item->compare($item)) {
+            if (0 === ($this->comparator)($node->item, $item)) {
                 return $index;
             }
             ++$index;
@@ -136,11 +138,11 @@ class LinkedSortedList implements SortedList
         return null;
     }
 
-    public function countOccurrences(Item $item): int
+    public function countOccurrences(mixed $item): int
     {
         $count = 0;
         foreach ($this->iterateNodes() as $node) {
-            if (0 === $node->item->compare($item)) {
+            if (0 === ($this->comparator)($node->item, $item)) {
                 ++$count;
             }
         }
@@ -148,12 +150,12 @@ class LinkedSortedList implements SortedList
         return $count;
     }
 
-    public function add(Item $item): void
+    public function add(mixed $item): void
     {
         $current = null;
         $previous = null;
         foreach ($this->iterateNodes() as $current) {
-            if ($current->item->compare($item) > 0) {
+            if (($this->comparator)($current->item, $item) > 0) {
                 $newNode = new Node($item, next: $current);
                 if (null === $previous) {
                     $this->head = $newNode;
@@ -175,12 +177,12 @@ class LinkedSortedList implements SortedList
         $pointer = new Node($item);
     }
 
-    public function removeFirst(Item $item): bool
+    public function removeFirst(mixed $item): bool
     {
         return 1 === $this->removeItems($item, limit: 1);
     }
 
-    public function removeAll(Item $item): int
+    public function removeAll(mixed $item): int
     {
         return $this->removeItems($item);
     }
@@ -238,12 +240,12 @@ class LinkedSortedList implements SortedList
         }
     }
 
-    private function removeItems(Item $item, ?int $limit = null): int
+    private function removeItems(mixed $item, ?int $limit = null): int
     {
         $removed = 0;
         $previous = null;
         foreach ($this->iterateNodes() as $current) {
-            $comparison = $current->item->compare($item);
+            $comparison = ($this->comparator)($current->item, $item);
             if (0 === $comparison) {
                 if (null === $previous) {
                     $this->head = $current->next;

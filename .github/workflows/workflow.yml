@@ -1,0 +1,41 @@
+name: Workflow
+
+on:
+  push:
+    branches: [ "**" ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    env:
+      PHP_CS_FIXER_IGNORE_ENV: 1
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHP CS Fixer
+        run: php vendor/bin/php-cs-fixer fix --dry-run
+
+      - name: PHPStan
+        run: php vendor/bin/phpstan
+
+      - name: PHPUnit tests
+        run: vendor/bin/phpunit

@@ -14,24 +14,24 @@ use PHPUnit\Framework\TestCase;
 class LinkedSortedListTest extends TestCase
 {
     /**
-     * @var LinkedSortedList<TestItem>
+     * @var LinkedSortedList<int>
      */
     private LinkedSortedList $list;
 
     public function testSize(): void
     {
-        $this->createEmpty();
+        $this->createList();
         $this->assertListCount(0);
         $this->assertIsEmpty();
 
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
         $this->assertListCount(3);
         $this->assertIsNotEmpty();
     }
 
-    public function testCreateEmpty(): void
+    public function testCreateList(): void
     {
-        $this->createEmpty();
+        $this->createList();
 
         $this->assertListCount(0);
         $this->assertIsEmpty();
@@ -39,7 +39,7 @@ class LinkedSortedListTest extends TestCase
 
     public function testCreateWithItems(): void
     {
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
 
         $this->assertListCount(3);
         $this->assertIsNotEmpty();
@@ -47,65 +47,65 @@ class LinkedSortedListTest extends TestCase
 
     public function testItemsAreSorted(): void
     {
-        $this->createWithValues([3, 1, 2]);
+        $this->createList([3, 1, 2]);
 
         $this->assertListHasValues([1, 2, 3]);
     }
 
     public function testHeadAndTail(): void
     {
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
 
-        $this->assertListHeadValue(1);
-        $this->assertListTailValue(3);
+        $this->assertListHead(1);
+        $this->assertListTail(3);
     }
 
     public function testContains(): void
     {
-        $this->createWithValues([1, 2]);
+        $this->createList([1, 2]);
 
-        $this->assertListContainsValue(1);
-        $this->assertListContainsValue(2);
-        $this->assertListDoesNotContainValue(3);
-        $this->assertListDoesNotContainValue(4);
+        $this->assertListContains(1);
+        $this->assertListContains(2);
+        $this->assertListDoesNotContain(3);
+        $this->assertListDoesNotContain(4);
     }
 
     public function testExists(): void
     {
-        $this->createWithValues([1, 2]);
+        $this->createList([1, 2]);
 
-        $this->assertListExists(fn (TestItem $item) => 1 === $item->value);
-        $this->assertListExists(fn (TestItem $item) => 2 === $item->value);
-        $this->assertListDoesNotExist(fn (TestItem $item) => 3 === $item->value);
-        $this->assertListDoesNotExist(fn (TestItem $item) => 4 === $item->value);
+        $this->assertListItemExists(fn (int $item) => 1 === $item);
+        $this->assertListItemExists(fn (int $item) => 2 === $item);
+        $this->assertListItemDoesNotExist(fn (int $item) => 3 === $item);
+        $this->assertListItemDoesNotExist(fn (int $item) => 4 === $item);
     }
 
     public function testIndexOf(): void
     {
         // Arrange:
-        $this->createWithValues([1, 2, 2, 3]);
+        $this->createList([1, 2, 2, 3]);
 
         // Assert:
-        $this->assertIndexOfValueIs(1, 0);
-        $this->assertIndexOfValueIs(2, 1);
-        $this->assertIndexOfValueIs(3, 3);
-        $this->assertIndexOfValueIsNull(4);
+        $this->assertIndexOfItemIs(1, 0);
+        $this->assertIndexOfItemIs(2, 1);
+        $this->assertIndexOfItemIs(3, 3);
+        $this->assertIndexOfItemIsNull(4);
     }
 
     public function testCountOccurrences(): void
     {
-        $this->createWithValues([1, 2, 2, 3]);
+        $this->createList([1, 2, 2, 3]);
 
-        $this->assertListValueOccurrencesCount(1, 1);
-        $this->assertListValueOccurrencesCount(2, 2);
-        $this->assertListValueOccurrencesCount(3, 1);
-        $this->assertListValueOccurrencesCount(4, 0);
+        $this->assertListItemOccurrencesCount(1, 1);
+        $this->assertListItemOccurrencesCount(2, 2);
+        $this->assertListItemOccurrencesCount(3, 1);
+        $this->assertListItemOccurrencesCount(4, 0);
     }
 
     public function testAdd(): void
     {
         // Arrange:
-        $this->createEmpty();
+        $this->createList();
 
         // Act:
         $this->addValue(2);
@@ -117,58 +117,27 @@ class LinkedSortedListTest extends TestCase
         $this->assertListCount(3);
     }
 
-    public function testOrderIsPreserved(): void
-    {
-        // Arrange:
-        $this->createEmpty();
-
-        // Act:
-        $items = [
-            '1' => $this->addValue(1),
-            '2' => $this->addValue(2),
-            '3' => $this->addValue(3),
-            '2a' => $this->addValue(2),
-            '3a' => $this->addValue(3),
-            '2b' => $this->addValue(2),
-            '1a' => $this->addValue(1),
-        ];
-
-        // Assert:
-        $this->assertListHasSameItems([
-            $items['1'],
-            $items['1a'],
-            $items['2'],
-            $items['2a'],
-            $items['2b'],
-            $items['3'],
-            $items['3a'],
-        ]);
-    }
-
     public function testRemoveFirst(): void
     {
         // Arrange:
-        $this->createEmpty();
-        $items = [
-            '1' => $this->addValue(1),
-            '1a' => $this->addValue(1),
-            '2' => $this->addValue(2),
-            '3' => $this->addValue(3),
-        ];
+        $this->createList([1, 1, 2, 2, 2, 3]);
 
         // Act:
-        $removed = $this->removeFirstValue(1);
+        $removed = $this->removeFirstItem(1);
 
         // Assert:
         $this->assertTrue($removed);
-        $this->assertListHasSameItems([
-            $items['1a'],
-            $items['2'],
-            $items['3'],
-        ]);
+        $this->assertListHasValues([1, 2, 2, 2, 3]);
 
         // Act:
-        $removed = $this->removeFirstValue(4);
+        $removed = $this->removeFirstItem(2);
+
+        // Assert:
+        $this->assertTrue($removed);
+        $this->assertListHasValues([1, 2, 2, 3]);
+
+        // Act:
+        $removed = $this->removeFirstItem(4);
 
         // Assert:
         $this->assertFalse($removed);
@@ -177,31 +146,31 @@ class LinkedSortedListTest extends TestCase
     public function testRemoveAll(): void
     {
         // Arrange:
-        $this->createWithValues([1, 1, 2, 2, 2, 3]);
+        $this->createList([1, 1, 2, 2, 2, 3]);
 
         // Act:
-        $removed = $this->removeAllValues(2);
+        $removed = $this->removeAllItems(2);
 
         // Assert:
         $this->assertSame(3, $removed);
         $this->assertListHasValues([1, 1, 3]);
 
         // Act:
-        $removed = $this->removeAllValues(1);
+        $removed = $this->removeAllItems(1);
 
         // Assert:
         $this->assertSame(2, $removed);
         $this->assertListHasValues([3]);
 
         // Act:
-        $removed = $this->removeAllValues(3);
+        $removed = $this->removeAllItems(3);
 
         // Assert:
         $this->assertSame(1, $removed);
         $this->assertIsEmpty();
 
         // Act:
-        $removed = $this->removeAllValues(4);
+        $removed = $this->removeAllItems(4);
 
         // Assert:
         $this->assertSame(0, $removed);
@@ -209,7 +178,7 @@ class LinkedSortedListTest extends TestCase
 
     public function testFirstThrowsNoSuchElement(): void
     {
-        $this->createEmpty();
+        $this->createList();
 
         $this->expectException(NoSuchElementException::class);
         $this->list->head();
@@ -217,7 +186,7 @@ class LinkedSortedListTest extends TestCase
 
     public function testLastThrowsNoSuchElement(): void
     {
-        $this->createEmpty();
+        $this->createList();
 
         $this->expectException(NoSuchElementException::class);
         $this->list->tail();
@@ -226,7 +195,7 @@ class LinkedSortedListTest extends TestCase
     public function testClear(): void
     {
         // Arrange:
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
 
         // Act:
         $this->list->clear();
@@ -239,13 +208,13 @@ class LinkedSortedListTest extends TestCase
     public function testWalk(): void
     {
         // Arrange:
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
         $recording = [];
 
         // Act:
         $this->list->walk(
-            function (TestItem $item) use (&$recording) {
-                $recording[] = $item->value;
+            function (int $item) use (&$recording) {
+                $recording[] = $item;
             }
         );
 
@@ -256,10 +225,10 @@ class LinkedSortedListTest extends TestCase
     public function testFilter(): void
     {
         // Arrange:
-        $this->createWithValues([1, 2, 3, 4, 5]);
+        $this->createList([1, 2, 3, 4, 5]);
 
         // Act:
-        $this->list->filter(fn (TestItem $item) => 0 === $item->value % 2);
+        $this->list->filter(fn (int $item) => 0 === $item % 2);
 
         // Assert:
         $this->assertListHasValues([2, 4]);
@@ -268,11 +237,11 @@ class LinkedSortedListTest extends TestCase
     public function testCloneEmptyList(): void
     {
         // Arrange:
-        $this->createEmpty();
+        $this->createList();
         $clone = clone $this->list;
 
         // Act:
-        $clone->add(new TestItem(1));
+        $clone->add(1);
 
         // Assert:
         $this->assertIsEmpty();
@@ -287,13 +256,13 @@ class LinkedSortedListTest extends TestCase
     public function testCloneListWithItems(): void
     {
         // Arrange:
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
         $clone = clone $this->list;
 
         // Act:
-        $clone->removeFirst(new TestItem(1));
-        $clone->removeFirst(new TestItem(2));
-        $clone->add(new TestItem(4));
+        $clone->removeFirst(1);
+        $clone->removeFirst(2);
+        $clone->add(4);
 
         // Assert:
         $this->assertListHasValues([1, 2, 3]);
@@ -308,56 +277,41 @@ class LinkedSortedListTest extends TestCase
     public function testIterator(): void
     {
         // Arrange:
-        $this->createWithValues([1, 2, 3]);
+        $this->createList([1, 2, 3]);
         $recording = [];
 
         // Act:
         foreach ($this->list as $item) {
-            $recording[] = $item->value;
+            $recording[] = $item;
         }
 
         // Assert:
         $this->assertSame([1, 2, 3], $recording);
     }
 
-    private function createEmpty(): void
-    {
-        $this->list = new LinkedSortedList();
-    }
-
     /**
-     * @param array<int> $values
+     * @param array<int> $items
      */
-    private function createWithValues(array $values): void
+    private function createList(array $items = []): void
     {
-        $items = array_map(fn (int $value) => new TestItem($value), $values);
-        $this->createWithItems($items);
+        /** @var LinkedSortedList<int> $list */
+        $list = new LinkedSortedList($items, fn (int $a, int $b) => $a <=> $b);
+        $this->list = $list;
     }
 
-    /**
-     * @param array<TestItem> $items
-     */
-    private function createWithItems(array $items): void
+    private function addValue(int $item): void
     {
-        $this->list = new LinkedSortedList($items);
-    }
-
-    private function addValue(int $value): TestItem
-    {
-        $item = new TestItem($value);
         $this->list->add($item);
-
-        return $item;
     }
 
-    private function removeFirstValue(int $value): bool
+    private function removeFirstItem(int $item): bool
     {
-        return $this->list->removeFirst(new TestItem($value));
+        return $this->list->removeFirst($item);
     }
 
-    private function removeAllValues(int $value): int
+    private function removeAllItems(int $item): int
     {
-        return $this->list->removeAll(new TestItem($value));
+        return $this->list->removeAll($item);
     }
 
     private function assertIsEmpty(): void
@@ -376,78 +330,61 @@ class LinkedSortedListTest extends TestCase
     }
 
     /**
-     * @param array<TestItem> $items
+     * @param array<int> $items
      */
-    private function assertListHasItems(array $items): void
+    private function assertListHasValues(array $items): void
     {
         $this->assertEquals($items, $this->list->toArray());
     }
 
-    /**
-     * @param array<TestItem> $items
-     */
-    private function assertListHasSameItems(array $items): void
+    private function assertListHead(int $item): void
     {
-        $this->assertSame($items, $this->list->toArray());
+        $this->assertSame($item, $this->list->head());
+    }
+
+    private function assertListTail(int $item): void
+    {
+        $this->assertSame($item, $this->list->tail());
+    }
+
+    private function assertListContains(int $item): void
+    {
+        $this->assertTrue($this->list->contains($item));
+    }
+
+    private function assertListDoesNotContain(int $item): void
+    {
+        $this->assertFalse($this->list->contains($item));
     }
 
     /**
-     * @param array<int> $values
+     * @param callable(int): bool $predicate
      */
-    private function assertListHasValues(array $values): void
-    {
-        $items = array_map(fn (int $value) => new TestItem($value), $values);
-        $this->assertListHasItems($items);
-    }
-
-    private function assertListHeadValue(int $value): void
-    {
-        $this->assertSame($value, $this->list->head()->value);
-    }
-
-    private function assertListTailValue(int $value): void
-    {
-        $this->assertSame($value, $this->list->tail()->value);
-    }
-
-    private function assertListContainsValue(int $value): void
-    {
-        $this->assertTrue($this->list->contains(new TestItem($value)));
-    }
-
-    private function assertListDoesNotContainValue(int $value): void
-    {
-        $this->assertFalse($this->list->contains(new TestItem($value)));
-    }
-
-    /**
-     * @param callable(TestItem): bool $predicate
-     */
-    private function assertListExists(callable $predicate): void
+    private function assertListItemExists(callable $predicate): void
     {
         $this->assertTrue($this->list->exists($predicate));
     }
 
     /**
-     * @param callable(TestItem): bool $predicate
+     * @param callable(int): bool $predicate
      */
-    private function assertListDoesNotExist(callable $predicate): void
+    private function assertListItemDoesNotExist(callable $predicate): void
     {
         $this->assertFalse($this->list->exists($predicate));
     }
 
-    private function assertIndexOfValueIs(int $value, int $index): void
+    private function assertIndexOfItemIs(int $item, int $index): void
     {
-        $this->assertSame($index, $this->list->indexOf(new TestItem($value)));
+        $this->assertSame($index, $this->list->indexOf($item));
     }
 
-    private function assertIndexOfValueIsNull(int $value): void
+    private function assertIndexOfItemIsNull(int $item): void
     {
-        $this->assertNull($this->list->indexOf(new TestItem($value)));
+        $this->assertNull($this->list->indexOf($item));
     }
 
-    private function assertListValueOccurrencesCount(int $value, int $count): void
+    private function assertListItemOccurrencesCount(int $item, int $count): void
     {
-        $this->assertSame($count, $this->list->countOccurrences(new TestItem($value)));
+        $this->assertSame($count, $this->list->countOccurrences($item));
     }
 }

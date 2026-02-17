@@ -3,7 +3,7 @@
 namespace MKniazuk\SortedLinkedList;
 
 /**
- * @template T of Item
+ * @template T of mixed
  *
  * @internal
  */

@@ -3,7 +3,7 @@
 namespace MKniazuk\SortedLinkedList;
 
 /**
- * @template T of Item
+ * @template T of mixed
  *
  * @extends \IteratorAggregate<int, T>
  */
@@ -23,7 +23,7 @@ interface SortedList extends \Countable, \IteratorAggregate
      *
      * @throws NoSuchElementException
      */
-    public function head(): Item;
+    public function head(): mixed;
 
     /**
      * Get the last element of the list or throw an exception if the list is empty.
@@ -32,14 +32,14 @@ interface SortedList extends \Countable, \IteratorAggregate
      *
      * @throws NoSuchElementException
      */
-    public function tail(): Item;
+    public function tail(): mixed;
 
     /**
      * @param T $item
      *
      * Check if the list contains the given value
      */
-    public function contains(Item $item): bool;
+    public function contains(mixed $item): bool;
 
     /**
      * Check if there is an element in the list for which the given predicate returns true.
@@ -53,19 +53,19 @@ interface SortedList extends \Countable, \IteratorAggregate
      *
      * Get the index of the first occurrence of the given item in the list or null if the list does not contain the item
      */
-    public function indexOf(Item $item): ?int;
+    public function indexOf(mixed $item): ?int;
 
     /**
      * @param T $item
      *
      * Count the number of occurrences of the given value in the list
      */
-    public function countOccurrences(Item $item): int;
+    public function countOccurrences(mixed $item): int;
 
     /**
      * @param T $item
      */
-    public function add(Item $item): void;
+    public function add(mixed $item): void;
 
     /**
      * @param T $item
@@ -74,14 +74,14 @@ interface SortedList extends \Countable, \IteratorAggregate
      *
      * Remove first occurrence of the given item from the list
      */
-    public function removeFirst(Item $item): bool;
+    public function removeFirst(mixed $item): bool;
 
     /**
      * @param T $item
      *
      * Remove all occurrences of the given item from the list and return the number of removed elements
      */
-    public function removeAll(Item $item): int;
+    public function removeAll(mixed $item): int;
 
     /**
      * Delete all elements from the list.
